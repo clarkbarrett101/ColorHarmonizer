@@ -7,8 +7,7 @@
     <body style="text-align: center; float: left; font-family: Verdana, Geneva, Tahoma, sans-serif; ">
         <h1>Color Harmonizer</h1>
         Select any two colors and get harmonious color combinations that include them both.  Click color again to unselect.
-        <br>
-        <br>
+
         <div id="input">
         </div>
         <div id="Analogous" style="flex:auto; flex-direction: row; align-self: center;" hidden>
@@ -59,7 +58,13 @@
             Tetradic Color Scheme
             <div id="TeContainer"style="justify-content: center;">
             </div>
-        </div>
+        </div>  
+        <div>
+            Color Mode:
+        </div>      
+        <button id="ColorButton" onclick="colorSwap()">
+        Red, Yellow, Blue (Pigments)
+        </button>
     </body>
     <script type="text/javascript" src="main.js"></script>
 </html>

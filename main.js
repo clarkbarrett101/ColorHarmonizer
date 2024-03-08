@@ -1,24 +1,42 @@
-const allColors = {
-  1: "#ff0000",
-  2: "#ff8000",
-  3: "#ffff00",
-  4: "#a6ff00",
-  5: "#00f600",
-  6: "#00ffa0",
-  7: "#00ffff",
-  8: "#0080ff",
-  9: "#0000ff",
-  10: "#8000ff",
-  11: "#ff00ff",
-  12: "#ff0080",
-};
+let allColors;
+
+const rgbColors = [
+  "#FF0000",
+  "#FF8000",
+  "#FFFF00",
+  "#a0FF00",
+  "#00f900",
+  "#00F0a0",
+  "#00FFFF",
+  "#0080FF",
+  "#0000FF",
+  "#8000FF",
+  "#FF00FF",
+  "#FF0080",
+];
+const rybColors = [
+  "#FF0000",
+  "#FF4000",
+  "#FF8000",
+  "#FFBF00",
+  "#FFFF00",
+  "#BFFF00",
+  "#00FF00",
+  "#00d0d0",
+  "#2050f0",
+  "#4000e0",
+  "#8000e0",
+  "#f000b0",
+];
 let colorButtons = [];
 let outputColors = [];
-let colorA = 0;
-let colorB = 0;
+let colorA = -1;
+let colorB = -1;
+const numSections = 12;
+allColors = rybColors;
 
 const element = document.getElementById("input");
-element.style.display = "flex";
+element.style.alignContent = "center";
 
 const analogous = document.getElementById("Analogous");
 const acontainer = document.getElementById("AContainer");
@@ -41,66 +59,144 @@ const tetradic = document.getElementById("Tetradic");
 const tecontainer = document.getElementById("TeContainer");
 tecontainer.style.display = "flex";
 
-for (let i = 1; i <= 12; i++) {
-  const button = document.createElement("button");
-  button.style.background = allColors[i];
+var canvas = document.createElement("canvas");
+element.appendChild(canvas);
+canvas.width = 500;
+canvas.height = 500;
+var ctx = canvas.getContext("2d");
 
-  button.style.width = "50px";
-  button.style.height = "100px";
-  button.style.border = "none";
-  button.onclick = () => setColor(button, i);
-  colorButtons[i] = button;
-  element.appendChild(button);
-  const spacer = document.createElement("div");
-  spacer.style.width = "30px";
-  spacer.style.height = "100px";
-  spacer.style.background =
-    "linear-gradient(to right," +
-    allColors[i] +
-    "," +
-    allColors[loopColor(i + 1)] +
-    ")";
-  element.appendChild(spacer);
+var radius = Math.min(canvas.width, canvas.height) / 3;
+var centerX = canvas.width / 2;
+var centerY = canvas.height / 2;
+for (var i = 0; i < numSections; i++) {
+  drawSection(i);
 }
 
-function loopColor(color) {
-  if (color <= 0) {
-    return (color += 12);
-  } else if (color > 12) {
-    return (color -= 12);
-  } else {
-    return color;
+drawShadows();
+function drawSection(index) {
+  var startAngle = (index * 2 * Math.PI) / numSections;
+  var endAngle = ((index + 1) * 2 * Math.PI) / numSections;
+  if (index == colorA || index == colorB) {
+    return;
+  }
+  ctx.fillStyle = convertToColor(index);
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY);
+  ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawShadows() {
+  if (colorA != -1) {
+    var startAngle = (colorA * 2 * Math.PI) / numSections;
+    var endAngle = ((colorA + 1) * 2 * Math.PI) / numSections;
+    var outerRadius = radius * 1.3;
+    ctx.save();
+    ctx.fillStyle = convertToColor(colorA);
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 20;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
+
+  if (colorB != -1) {
+    var startAngle = (colorB * 2 * Math.PI) / numSections;
+    var endAngle = ((colorB + 1) * 2 * Math.PI) / numSections;
+    var outerRadius = radius * 1.3;
+    ctx.fillStyle = convertToColor(colorB);
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 20;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
   }
 }
+
+canvas.addEventListener("click", function (event) {
+  var rect = canvas.getBoundingClientRect();
+  var mouseX = event.clientX - rect.left;
+  var mouseY = event.clientY - rect.top;
+  for (var i = 0; i < numSections; i++) {
+    var startAngle = (i * 2 * Math.PI) / numSections;
+    var endAngle = ((i + 1) * 2 * Math.PI) / numSections;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.closePath();
+    if (ctx.isPointInPath(mouseX, mouseY)) {
+      if (colorA == i) {
+        colorA = -1;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var j = 0; j < numSections; j++) {
+          drawSection(j);
+        }
+        drawShadows();
+      } else if (colorB == i) {
+        colorB = -1;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var j = 0; j < numSections; j++) {
+          drawSection(j);
+        }
+        drawShadows();
+      } else if (colorA == -1) {
+        colorA = i;
+      } else if (colorB == -1) {
+        colorB = i;
+      }
+      harmonize();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var j = 0; j < numSections; j++) {
+        drawSection(j);
+      }
+      drawShadows();
+    }
+  }
+});
+
+function loopColor(color) {
+  return (color + numSections) % numSections;
+}
 function invertColor(color) {
-  color = loopColor(12 - color);
+  return loopColor(numSections / 2 - color);
 }
 
-function convertToColor(color) {
-  return allColors[color];
+function convertToColor(c) {
+  return allColors[c];
 }
 function setColor(button, color) {
   if (color == colorA) {
     colorButtons[color].style.border = "none";
-    colorA = 0;
+    colorA = -1;
   } else if (color == colorB) {
     colorButtons[color].style.border = "none";
-    colorB = 0;
-  } else if (colorA == 0) {
+    colorB = -1;
+  } else if (colorA == -1) {
     colorA = color;
     button.style.border = "3px solid black";
-    if (colorB != 0) {
+    if (colorB != -1) {
       harmonize();
     }
-  } else if (colorB == 0) {
+  } else if (colorB == -1) {
     colorB = color;
     button.style.border = "3px solid black";
-    if (colorA != 0) {
+    if (colorA != -1) {
       harmonize();
     }
   }
 }
 function harmonize() {
+  if (colorA == -1 || colorB == -1) {
+    return;
+  }
   if (colorA > colorB) {
     let temp = colorA;
     colorA = colorB;
@@ -120,10 +216,10 @@ function harmonize() {
         analogous.hidden = false;
         acontainer.innerHTML = "";
         acontainer.appendChild(
-          colorBoxes(colorA, colorB, loopColor(colorA + 2), 0)
+          colorBoxes(colorA, colorB, loopColor(colorA + 2), -1)
         );
         acontainer.appendChild(
-          colorBoxes(loopColor(colorA + 11), colorA, colorB, 0)
+          colorBoxes(loopColor(colorA + 11), colorA, colorB, -1)
         );
       }
       break;
@@ -132,12 +228,12 @@ function harmonize() {
         analogous.hidden = false;
         acontainer.innerHTML = "";
         acontainer.appendChild(
-          colorBoxes(colorA, loopColor(colorA + 1), colorB, 0)
+          colorBoxes(colorA, loopColor(colorA + 1), colorB, -1)
         );
         splitComplementary.hidden = false;
         scontainer.innerHTML = "";
         scontainer.appendChild(
-          colorBoxes(colorA, colorB, loopColor(colorA + 7), 0)
+          colorBoxes(colorA, colorB, loopColor(colorA + 7), -1)
         );
         doubleSplitComplementary.hidden = false;
         dcontainer.innerHTML = "";
@@ -180,7 +276,7 @@ function harmonize() {
         triadic.hidden = false;
         tcontainer.innerHTML = "";
         tcontainer.appendChild(
-          colorBoxes(colorA, colorB, loopColor(colorA + 8), 0)
+          colorBoxes(colorA, colorB, loopColor(colorA + 8), -1)
         );
       }
       break;
@@ -189,7 +285,7 @@ function harmonize() {
         splitComplementary.hidden = false;
         scontainer.innerHTML = "";
         scontainer.appendChild(
-          colorBoxes(colorB, loopColor(colorA + 7), colorA, 0)
+          colorBoxes(colorB, loopColor(colorA + 7), colorA, -1)
         );
       }
       break;
@@ -197,7 +293,7 @@ function harmonize() {
       {
         complementary.hidden = false;
         ccontainer.innerHTML = "";
-        ccontainer.appendChild(colorBoxes(colorA, colorB, 0, 0));
+        ccontainer.appendChild(colorBoxes(colorA, colorB, -1, -1));
         tetradic.hidden = false;
         tecontainer.innerHTML = "";
         tecontainer.appendChild(
@@ -215,7 +311,7 @@ function harmonize() {
             colorA,
             loopColor(colorA + 2),
             colorB,
-            loopColor(colorB + 10)
+            loopColor(colorB + 2)
           )
         );
         dcontainer.appendChild(
@@ -223,7 +319,7 @@ function harmonize() {
             colorA,
             loopColor(colorA + 10),
             colorB,
-            loopColor(colorB + 2)
+            loopColor(colorB + 10)
           )
         );
       }
@@ -233,7 +329,7 @@ function harmonize() {
         splitComplementary.hidden = false;
         scontainer.innerHTML = "";
         scontainer.appendChild(
-          colorBoxes(loopColor(colorA + 5), colorB, colorA, 0)
+          colorBoxes(loopColor(colorA + 5), colorB, colorA, -1)
         );
       }
       break;
@@ -252,7 +348,7 @@ function harmonize() {
         triadic.hidden = false;
         tcontainer.innerHTML = "";
         tcontainer.appendChild(
-          colorBoxes(colorA, colorB, loopColor(colorA + 4), 0)
+          colorBoxes(colorA, colorB, loopColor(colorA + 4), -1)
         );
       }
       break;
@@ -275,12 +371,12 @@ function harmonize() {
         analogous.hidden = false;
         acontainer.innerHTML = "";
         acontainer.appendChild(
-          colorBoxes(colorA, loopColor(colorB + 1), colorB, 0)
+          colorBoxes(colorA, loopColor(colorB + 1), colorB, -1)
         );
         splitComplementary.hidden = false;
         scontainer.innerHTML = "";
         scontainer.appendChild(
-          colorBoxes(colorA, colorB, loopColor(colorA + 5), 0)
+          colorBoxes(colorA, colorB, loopColor(colorA + 5), -1)
         );
         doubleSplitComplementary.hidden = false;
         dcontainer.innerHTML = "";
@@ -298,10 +394,10 @@ function harmonize() {
       analogous.hidden = false;
       acontainer.innerHTML = "";
       acontainer.appendChild(
-        colorBoxes(colorA, colorB, loopColor(colorA + 1), 0)
+        colorBoxes(colorA, colorB, loopColor(colorA + 1), -1)
       );
       acontainer.appendChild(
-        colorBoxes(loopColor(colorA + 10), colorB, colorA, 0)
+        colorBoxes(loopColor(colorA + 10), colorB, colorA, -1)
       );
     }
   }
@@ -318,15 +414,14 @@ function colorBoxes(a, b, c, d) {
   box.style.height = "100px";
   box.style.backgroundColor = convertToColor(b);
   div.appendChild(box);
-  if (c > 0) {
+  if (c >= 0) {
     box = document.createElement("div");
     box.style.width = "100px";
     box.style.height = "100px";
     box.style.backgroundColor = convertToColor(c);
-    console.log(c);
     div.appendChild(box);
   }
-  if (d > 0) {
+  if (d >= 0) {
     box = document.createElement("div");
     box.style.width = "100px";
     box.style.height = "100px";
@@ -338,4 +433,21 @@ function colorBoxes(a, b, c, d) {
   div.style.border = "5px solid black";
   div.style.margin = "10px";
   return div;
+}
+const colorButton = document.getElementById("ColorButton");
+function colorSwap() {
+  if (allColors == rybColors) {
+    allColors = rgbColors;
+    colorButton.innerHTML = "Red, Green, Blue (Digital)";
+  } else {
+    colorButton.innerHTML = "Red, Yellow, Blue (Pigments)";
+    allColors = rybColors;
+  }
+  colorA = -1;
+  colorB = -1;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (var i = 0; i < numSections; i++) {
+    drawSection(i);
+  }
+  drawShadows();
 }
