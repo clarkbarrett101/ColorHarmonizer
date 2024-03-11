@@ -434,7 +434,7 @@ function colorBoxes(a, b, c, d) {
   div.style.margin = "10px";
   return div;
 }
-const colorButton = document.getElementById("ColorButton");
+const colorButton = document.getElementById("toggleButton");
 function colorSwap() {
   if (allColors == rybColors) {
     allColors = rgbColors;
