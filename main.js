@@ -287,6 +287,9 @@ function harmonize() {
         scontainer.appendChild(
           colorBoxes(colorB, loopColor(colorA + 7), colorA, -1)
         );
+        scontainer.appendChild(
+          colorBoxes(colorA, colorB, loopColor(colorA - 2), -1)
+        );
       }
       break;
     case 6:
@@ -330,6 +333,9 @@ function harmonize() {
         scontainer.innerHTML = "";
         scontainer.appendChild(
           colorBoxes(loopColor(colorA + 5), colorB, colorA, -1)
+        );
+        scontainer.appendChild(
+          colorBoxes(colorB, colorA, loopColor(colorA + 2), -1)
         );
       }
       break;
