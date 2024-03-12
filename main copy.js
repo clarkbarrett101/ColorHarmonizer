@@ -1,43 +1,8 @@
-let allColors;
-
-const rgbColors = [
-  "#FF0000",
-  "#FF8000",
-  "#FFFF00",
-  "#a0FF00",
-  "#00f900",
-  "#00F0a0",
-  "#00FFFF",
-  "#0080FF",
-  "#0000FF",
-  "#8000FF",
-  "#FF00FF",
-  "#FF0080",
-];
-const rybColors = [
-  "#FF0000",
-  "#FF4000",
-  "#FF8000",
-  "#FFBF00",
-  "#FFFF00",
-  "#BFFF00",
-  "#00FF00",
-  "#00d0d0",
-  "#2050f0",
-  "#4000e0",
-  "#8000e0",
-  "#f000b0",
-];
-let colorButtons = [];
-let outputColors = [];
 let colorA = -1;
 let colorB = -1;
 const numSections = 24;
-allColors = rybColors;
-
 const element = document.getElementById("input");
 element.style.alignContent = "center";
-
 const analogous = document.getElementById("Analogous");
 const acontainer = document.getElementById("AContainer");
 acontainer.style.display = "flex";
@@ -58,31 +23,20 @@ tcontainer.style.display = "flex";
 const tetradic = document.getElementById("Tetradic");
 const tecontainer = document.getElementById("TeContainer");
 tecontainer.style.display = "flex";
-
 var canvas = document.createElement("canvas");
 let useRGB = false;
 element.appendChild(canvas);
 canvas.width = 500;
 canvas.height = 500;
 var ctx = canvas.getContext("2d");
-
 var radius = Math.min(canvas.width, canvas.height) / 3;
-
 var centerX = canvas.width / 2;
 var centerY = canvas.height / 2;
-
-// Variable to store the selected section
 var selectedSection = null;
-
-// Variable to store the section being moused over
 var hoveredSection = null;
-
-// Draw the color wheel
 for (var i = 0; i < numSections; i++) {
   drawSection(i);
 }
-
-// Draw the shadows for the selected section on top
 drawShadows();
 
 function drawSection(index) {
@@ -90,14 +44,11 @@ function drawSection(index) {
   var endAngle = ((index + 1) * 2 * Math.PI) / numSections;
 
   if (selectedSection !== null && index === selectedSection) {
-    return; // Skip the selected section for now
+    return;
   }
-
-  // Draw the regular section
   ctx.fillStyle = getColorForSection(index);
 
   if (hoveredSection !== null && index === hoveredSection) {
-    // If it's the section being moused over, draw it with an expanded radius
     var expandedRadius = radius * 1.2;
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
@@ -105,7 +56,6 @@ function drawSection(index) {
     ctx.closePath();
     ctx.fill();
   } else {
-    // Draw the regular section
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
     ctx.arc(centerX, centerY, radius, startAngle, endAngle);
@@ -148,13 +98,11 @@ function drawShadows() {
   }
 }
 
-// Handle mouseover events on the canvas
 canvas.addEventListener("mousemove", function (event) {
   var rect = canvas.getBoundingClientRect();
   var mouseX = event.clientX - rect.left;
   var mouseY = event.clientY - rect.top;
 
-  // Check if the mouse is inside any section
   hoveredSection = null;
   for (var i = 0; i < numSections; i++) {
     var startAngle = (i * 2 * Math.PI) / numSections;
@@ -167,27 +115,23 @@ canvas.addEventListener("mousemove", function (event) {
 
     if (ctx.isPointInPath(mouseX, mouseY)) {
       hoveredSection = i;
-      break; // Exit the loop when the first section is found
+      break;
     }
   }
 
-  // Redraw the entire color wheel on mouseover
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (var j = 0; j < numSections; j++) {
     drawSection(j);
   }
 
-  // Draw the shadows for the selected section on top
   drawShadows();
 });
 
-// Handle click events on the canvas
 canvas.addEventListener("click", function (event) {
   var rect = canvas.getBoundingClientRect();
   var mouseX = event.clientX - rect.left;
   var mouseY = event.clientY - rect.top;
 
-  // Check if the click is inside any section
   for (var i = 0; i < numSections; i++) {
     var startAngle = (i * 2 * Math.PI) / numSections;
     var endAngle = ((i + 1) * 2 * Math.PI) / numSections;
@@ -200,18 +144,8 @@ canvas.addEventListener("click", function (event) {
     if (ctx.isPointInPath(mouseX, mouseY)) {
       if (colorA == i) {
         colorA = -1;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (var j = 0; j < numSections; j++) {
-          drawSection(j);
-        }
-        drawShadows();
       } else if (colorB == i) {
         colorB = -1;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (var j = 0; j < numSections; j++) {
-          drawSection(j);
-        }
-        drawShadows();
       } else if (colorA == -1) {
         colorA = i;
       } else if (colorB == -1) {
@@ -223,52 +157,50 @@ canvas.addEventListener("click", function (event) {
         drawSection(j);
       }
       drawShadows();
+      backgroundColor();
     }
   }
 });
-// Function to get the color for a section based on the selected style
+
 function getColorForSection(index) {
   if (useRGB) {
-    return "hsl(" + (index * 360) / numSections + ", 100%, 50%)";
+    return "hsl(" + index * (360 / numSections) + ", 100%, 50% )";
   } else {
-    return "hsl(" + rgbHueOf((index * 360) / numSections) + ", 100%, 50%)";
+    return "hsl(" + rgbHueOf((index * 360) / numSections) + ",100%, 50%)";
   }
 }
-// Function to draw shadows for the selected section
+
+function bgColors(index) {
+  if (useRGB) {
+    return "hsl(" + index * (360 / numSections) + ", 100%, 75% )";
+  } else {
+    return "hsl(" + rgbHueOf((index * 360) / numSections) + ",100%, 75%)";
+  }
+}
+
+function backgroundColor() {
+  console.log(colorA, colorB);
+  const color1 = colorA >= 0 ? bgColors(colorA) : "white";
+  const color2 = colorB >= 0 ? bgColors(colorB) : "white";
+  document.body.style.background =
+    "linear-gradient(to right, " + color1 + ", " + color2 + ")";
+}
 
 function loopColor(color) {
   return (color + numSections) % numSections;
 }
 function invertColor(color) {
-  return loopColor(numSections / 2 - color);
+  return loopColor(numSections / 2 + color);
 }
 
-function convertToColor(c) {
-  return allColors[c];
-}
-function setColor(button, color) {
-  if (color == colorA) {
-    colorButtons[color].style.border = "none";
-    colorA = -1;
-  } else if (color == colorB) {
-    colorButtons[color].style.border = "none";
-    colorB = -1;
-  } else if (colorA == -1) {
-    colorA = color;
-    button.style.border = "3px solid black";
-    if (colorB != -1) {
-      harmonize();
-    }
-  } else if (colorB == -1) {
-    colorB = color;
-    button.style.border = "3px solid black";
-    if (colorA != -1) {
-      harmonize();
-    }
-  }
-}
 function harmonize() {
   if (colorA == -1 || colorB == -1) {
+    analogous.hidden = true;
+    doubleSplitComplementary.hidden = true;
+    splitComplementary.hidden = true;
+    complementary.hidden = true;
+    tetradic.hidden = true;
+    triadic.hidden = true;
     return;
   }
   if (colorA > colorB) {
@@ -276,28 +208,76 @@ function harmonize() {
     colorA = colorB;
     colorB = temp;
   }
-  const different = colorB - colorA;
-  analogous.hidden = true;
-  complementary.hidden = true;
-  splitComplementary.hidden = true;
-  triadic.hidden = true;
-  doubleSplitComplementary.hidden = true;
-  tetradic.hidden = true;
-  console.log(colorB - colorA);
-  if (different / numSections < 0.25) {
+
+  let different = colorB - colorA;
+  let middle = (colorA + colorB) / 2;
+  if (different > numSections / 2) {
+    middle = (middle + numSections / 2) % numSections;
+  }
+  doubleSplitComplementary.hidden = false;
+  if (invertColor(colorA) == colorB) {
+    dcontainer.innerHTML = "";
+    dcontainer.appendChild(
+      colorBoxes(
+        colorA,
+        loopColor(colorA + numSections / 4),
+        colorB,
+        loopColor(colorB + numSections / 4)
+      )
+    );
+    dcontainer.appendChild(
+      colorBoxes(
+        colorA,
+        loopColor(colorA - numSections / 4),
+        colorB,
+        loopColor(colorB - numSections / 4)
+      )
+    );
+    complementary.hidden = false;
+    ccontainer.innerHTML = "";
+    ccontainer.appendChild(colorBoxes(colorA, colorB, -1, -1));
+    tetradic.hidden = false;
+    tecontainer.innerHTML = "";
+    tecontainer.appendChild(
+      colorBoxes(
+        colorA,
+        loopColor(colorA + numSections / 4),
+        colorB,
+        loopColor(colorB + numSections / 4)
+      )
+    );
+  } else {
     analogous.hidden = false;
+    splitComplementary.hidden = false;
     acontainer.innerHTML = "";
-    acontainer.appendChild(
-      colorBoxes(colorA, colorB, loopColor(colorB + different), -1)
+    acontainer.appendChild(colorBoxes(colorA, middle, colorB, -1));
+    if (different / numSections < 0.25) {
+      acontainer.appendChild(
+        colorBoxes(colorA, colorB, loopColor(colorB + different), -1)
+      );
+      acontainer.appendChild(
+        colorBoxes(loopColor(colorA - different), colorA, colorB, -1)
+      );
+    }
+    scontainer.innerHTML = "";
+    scontainer.appendChild(colorBoxes(colorA, invertColor(middle), colorB, -1));
+    dcontainer.innerHTML = "";
+    dcontainer.appendChild(
+      colorBoxes(colorA, colorB, invertColor(colorA), invertColor(colorB))
     );
-    acontainer.appendChild(
-      colorBoxes(loopColor(colorA - different), colorA, colorB, -1)
-    );
-    acontainer.appendChild(
-      colorBoxes(colorA, loopColor(colorB - different / 2), colorB, -1)
-    );
+    if (
+      (different / numSections < 0.35 && different / numSections > 0.3) ||
+      (different / numSections < 0.7 && different / numSections > 0.65)
+    ) {
+      splitComplementary.hidden = true;
+      triadic.hidden = false;
+      tcontainer.appendChild(
+        colorBoxes(colorA, loopColor(colorA + numSections / 3), colorB, -1)
+      );
+    }
   }
 }
+
 function colorBoxes(a, b, c, d) {
   let div = document.createElement("div");
   let box = document.createElement("div");
@@ -330,17 +310,22 @@ function colorBoxes(a, b, c, d) {
   div.style.margin = "10px";
   return div;
 }
-const colorButton = document.getElementById("ColorButton");
+
+const colorButton = document.getElementById("toggleButton");
 function colorSwap() {
   useRGB = !useRGB;
-  colorA = -1;
-  colorB = -1;
+  colorButton.innerHTML = useRGB
+    ? "Red Green Blue (Digital)"
+    : "Red Yellow Blue (Pigments)";
+  harmonize();
+  backgroundColor();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (var i = 0; i < numSections; i++) {
     drawSection(i);
   }
   drawShadows();
 }
+
 var wheel = [
   0, 0, 15, 8, 30, 17, 45, 26, 60, 34, 75, 41, 90, 48, 105, 54, 120, 60, 135,
   81, 150, 103, 165, 123, 180, 138, 195, 155, 210, 171, 225, 187, 240, 204, 255,
