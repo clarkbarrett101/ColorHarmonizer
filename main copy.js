@@ -261,6 +261,40 @@ function harmonize() {
     }
     scontainer.innerHTML = "";
     scontainer.appendChild(colorBoxes(colorA, invertColor(middle), colorB, -1));
+    if (different / numSections > 0.66) {
+      scontainer.appendChild(
+        colorBoxes(
+          colorA,
+          loopColor(colorA + (invertColor(colorB) - colorA) / 2),
+          colorB,
+          -1
+        )
+      );
+      scontainer.appendChild(
+        colorBoxes(
+          colorB,
+          loopColor(colorB + (colorB - invertColor(colorA)) / 2),
+          colorA,
+          -1
+        )
+      );
+    }
+    scontainer.appendChild(
+      colorBoxes(
+        colorA,
+        loopColor(colorA + (invertColor(colorB) - colorA) / 2),
+        colorB,
+        -1
+      )
+    );
+    scontainer.appendChild(
+      colorBoxes(
+        colorB,
+        loopColor(colorB + (colorB - invertColor(colorA)) / 2),
+        colorA,
+        -1
+      )
+    );
     dcontainer.innerHTML = "";
     dcontainer.appendChild(
       colorBoxes(colorA, colorB, invertColor(colorA), invertColor(colorB))
@@ -271,8 +305,9 @@ function harmonize() {
     ) {
       splitComplementary.hidden = true;
       triadic.hidden = false;
+      tcontainer.innerHTML = "";
       tcontainer.appendChild(
-        colorBoxes(colorA, loopColor(colorA + numSections / 3), colorB, -1)
+        colorBoxes(colorA, invertColor(middle), colorB, -1)
       );
     }
   }

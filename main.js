@@ -1,5 +1,3 @@
-let allColors;
-
 const rgbColors = [
   "#FF0000",
   "#FF8000",
@@ -14,11 +12,25 @@ const rgbColors = [
   "#FF00FF",
   "#FF0080",
 ];
+const lightrgbColors = [
+  "#FF6060",
+  "#FF8040",
+  "#FFFF60",
+  "#a0FF60",
+  "#70f970",
+  "#a0F0ff",
+  "#60FFFF",
+  "#6090FF",
+  "#8080FF",
+  "#F080FF",
+  "#FF60FF",
+  "#FF60b0",
+];
 const rybColors = [
   "#FF0000",
   "#FF4000",
   "#FF8000",
-  "#FFBF00",
+  "#FFCF00",
   "#FFFF00",
   "#BFFF00",
   "#00FF00",
@@ -28,12 +40,27 @@ const rybColors = [
   "#8000e0",
   "#f000b0",
 ];
+const ryblightColors = [
+  "#FF6060",
+  "#FF8040",
+  "#FFc040",
+  "#FFe080",
+  "#FFFF60",
+  "#a0FF60",
+  "#70f970",
+  "#a0F0ff",
+  "#60b0FF",
+  "#4090FF",
+  "#7070FF",
+  "#FF60b0",
+];
+let allColors = rybColors;
+let lightColors = ryblightColors;
 let colorButtons = [];
 let outputColors = [];
 let colorA = -1;
 let colorB = -1;
 const numSections = 12;
-allColors = rybColors;
 
 const element = document.getElementById("input");
 element.style.alignContent = "center";
@@ -135,18 +162,8 @@ canvas.addEventListener("click", function (event) {
     if (ctx.isPointInPath(mouseX, mouseY)) {
       if (colorA == i) {
         colorA = -1;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (var j = 0; j < numSections; j++) {
-          drawSection(j);
-        }
-        drawShadows();
       } else if (colorB == i) {
         colorB = -1;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (var j = 0; j < numSections; j++) {
-          drawSection(j);
-        }
-        drawShadows();
       } else if (colorA == -1) {
         colorA = i;
       } else if (colorB == -1) {
@@ -158,9 +175,18 @@ canvas.addEventListener("click", function (event) {
         drawSection(j);
       }
       drawShadows();
+      backgroundColor();
     }
   }
 });
+
+function backgroundColor() {
+  console.log(colorA, colorB);
+  const color1 = colorA >= 0 ? lightColors[colorA] : "white";
+  const color2 = colorB >= 0 ? lightColors[colorB] : "white";
+  document.body.style.background =
+    "linear-gradient(to right, " + color1 + ", " + color2 + ")";
+}
 
 function loopColor(color) {
   return (color + numSections) % numSections;
@@ -444,10 +470,12 @@ const colorButton = document.getElementById("toggleButton");
 function colorSwap() {
   if (allColors == rybColors) {
     allColors = rgbColors;
+    lightColors = lightrgbColors;
     colorButton.innerHTML = "Red, Green, Blue (Digital)";
   } else {
     colorButton.innerHTML = "Red, Yellow, Blue (Pigments)";
     allColors = rybColors;
+    lightColors = ryblightColors;
   }
   colorA = -1;
   colorB = -1;
