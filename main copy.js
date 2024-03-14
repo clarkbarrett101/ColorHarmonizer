@@ -179,7 +179,6 @@ function bgColors(index) {
 }
 
 function backgroundColor() {
-  console.log(colorA, colorB);
   const color1 = colorA >= 0 ? bgColors(colorA) : "white";
   const color2 = colorB >= 0 ? bgColors(colorB) : "white";
   document.body.style.background =
@@ -211,103 +210,93 @@ function harmonize() {
 
   let different = colorB - colorA;
   let middle = (colorA + colorB) / 2;
-  if (different > numSections / 2) {
-    middle = (middle + numSections / 2) % numSections;
+  let loopSide = false;
+  if (colorA + numSections - colorB < different) {
+    different = colorA + numSections - colorB;
+    middle = loopColor((colorA + numSections + colorB) / 2);
+    loopSide = true;
   }
-  doubleSplitComplementary.hidden = false;
+  const diff = (100 * different) / numSections;
+
   if (invertColor(colorA) == colorB) {
-    dcontainer.innerHTML = "";
-    dcontainer.appendChild(
-      colorBoxes(
-        colorA,
-        loopColor(colorA + numSections / 4),
-        colorB,
-        loopColor(colorB + numSections / 4)
-      )
-    );
-    dcontainer.appendChild(
-      colorBoxes(
-        colorA,
-        loopColor(colorA - numSections / 4),
-        colorB,
-        loopColor(colorB - numSections / 4)
-      )
-    );
     complementary.hidden = false;
     ccontainer.innerHTML = "";
-    ccontainer.appendChild(colorBoxes(colorA, colorB, -1, -1));
+    ccontainer.appendChild(colorDots([colorA, colorB]));
     tetradic.hidden = false;
     tecontainer.innerHTML = "";
     tecontainer.appendChild(
-      colorBoxes(
+      colorDots([
         colorA,
         loopColor(colorA + numSections / 4),
         colorB,
-        loopColor(colorB + numSections / 4)
-      )
+        loopColor(colorB + numSections / 4),
+      ])
     );
-  } else {
-    analogous.hidden = false;
-    splitComplementary.hidden = false;
-    acontainer.innerHTML = "";
-    acontainer.appendChild(colorBoxes(colorA, middle, colorB, -1));
-    if (different / numSections < 0.25) {
-      acontainer.appendChild(
-        colorBoxes(colorA, colorB, loopColor(colorB + different), -1)
-      );
-      acontainer.appendChild(
-        colorBoxes(loopColor(colorA - different), colorA, colorB, -1)
-      );
-    }
-    scontainer.innerHTML = "";
-    scontainer.appendChild(colorBoxes(colorA, invertColor(middle), colorB, -1));
-    if (different / numSections > 0.66) {
-      scontainer.appendChild(
-        colorBoxes(
-          colorA,
-          loopColor(colorA + (invertColor(colorB) - colorA) / 2),
-          colorB,
-          -1
-        )
-      );
-      scontainer.appendChild(
-        colorBoxes(
-          colorB,
-          loopColor(colorB + (colorB - invertColor(colorA)) / 2),
-          colorA,
-          -1
-        )
-      );
-    }
-    scontainer.appendChild(
-      colorBoxes(
-        colorA,
-        loopColor(colorA + (invertColor(colorB) - colorA) / 2),
-        colorB,
-        -1
-      )
-    );
-    scontainer.appendChild(
-      colorBoxes(
-        colorB,
-        loopColor(colorB + (colorB - invertColor(colorA)) / 2),
-        colorA,
-        -1
-      )
-    );
+    doubleSplitComplementary.hidden = false;
     dcontainer.innerHTML = "";
     dcontainer.appendChild(
-      colorBoxes(colorA, colorB, invertColor(colorA), invertColor(colorB))
+      colorDots([
+        colorA,
+        loopColor(colorA + numSections * 0.08),
+        loopColor(colorB + 0.08 * numSections),
+        colorB,
+      ])
     );
-    if (
-      (different / numSections < 0.35 && different / numSections > 0.3) ||
-      (different / numSections < 0.7 && different / numSections > 0.65)
-    ) {
-      splitComplementary.hidden = true;
-      triadic.hidden = false;
-      tcontainer.innerHTML = "";
-      tcontainer.appendChild(
-        colorBoxes(colorA, invertColor(middle), colorB, -1)
+    dcontainer.appendChild(
+      colorDots([
+        colorA,
+        loopColor(colorA - numSections * 0.08),
+        loopColor(colorB - 0.08 * numSections),
+        colorB,
+      ])
+    );
+  } else {
+    if (diff < 30 && diff > 20) {
+      tetradic.hidden = false;
+      tecontainer.innerHTML = "";
+      tecontainer.appendChild(
+        colorDots([colorA, invertColor(colorA), colorB, invertColor(colorB)])
+      );
+    } else {
+      doubleSplitComplementary.hidden = false;
+      dcontainer.innerHTML = "";
+      dcontainer.appendChild(
+        colorDots([colorA, invertColor(colorB), invertColor(colorA), colorB])
+      );
+    }
+    if (diff <= 35) {
+      analogous.hidden = false;
+      acontainer.innerHTML = "";
+      acontainer.appendChild(colorDots([loopColor(middle), colorA, colorB]));
+      if (diff >= 25) {
+        triadic.hidden = false;
+        tcontainer.innerHTML = "";
+        tcontainer.appendChild(
+          colorDots([colorA, invertColor(middle), colorB])
+        );
+      } else {
+        if (diff < 15) {
+          acontainer.appendChild(
+            colorDots([loopColor(middle - 1.5 * different), colorA, colorB])
+          );
+          acontainer.appendChild(
+            colorDots([loopColor(middle + 1.5 * different), colorA, colorB])
+          );
+        }
+        splitComplementary.hidden = false;
+        scontainer.innerHTML = "";
+        scontainer.appendChild(
+          colorDots([colorA, colorB, invertColor(middle)])
+        );
+      }
+    } else {
+      splitComplementary.hidden = false;
+      scontainer.innerHTML = "";
+      scontainer.appendChild(
+        colorDots([colorA, loopColor(colorA + 2 * different), colorB])
+      );
+      scontainer.appendChild(
+        colorDots([colorA, colorB, loopColor(colorB - 2 * different)])
       );
     }
   }
@@ -345,6 +334,27 @@ function colorBoxes(a, b, c, d) {
   div.style.margin = "10px";
   return div;
 }
+function colorDots(colors) {
+  const dotCanvas = document.createElement("canvas");
+  const height = 200;
+  dotCanvas.height = height;
+  dotCanvas.width = height;
+  const ctx = dotCanvas.getContext("2d");
+  const sections = colors.length;
+  console.log(colors);
+  for (var i = 0; i < sections; i++) {
+    ctx.fillStyle = getColorForSection(colors[i]);
+    var startAngle = -Math.PI / 2 + (i * 2 * Math.PI) / sections;
+    var endAngle = -Math.PI / 2 + ((i + 1) * 2 * Math.PI) / sections;
+    ctx.beginPath();
+    ctx.moveTo(height / 2, height / 2);
+    ctx.arc(height / 2, height / 2, 75, startAngle, endAngle);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fill();
+  }
+  return dotCanvas;
+}
 
 const colorButton = document.getElementById("toggleButton");
 function colorSwap() {
@@ -381,7 +391,14 @@ function rgbHueOf(rybHue) {
         return y0 + ((y1 - y0) * (rybHue - x0)) / (x1 - x0);
       }
     }
-  } catch (e) {
-    console.log(rybHue);
-  }
+  } catch (e) {}
 }
+
+/*
+ * Ag mid : 0 - 40
+ * db invert :  0 - 50
+ * Ag right, left , sp invert : 0 - 25
+ * tri : 25 - 40
+ * sp left, right :  40 - 50
+ * tet/comp db left, right == 50
+ */
