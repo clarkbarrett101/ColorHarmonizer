@@ -26,8 +26,15 @@ tecontainer.style.display = "flex";
 var canvas = document.createElement("canvas");
 let useRGB = false;
 element.appendChild(canvas);
-canvas.width = 500;
-canvas.height = 500;
+if (window.innerWidth < window.innerHeight) {
+  canvas.width = window.innerWidth - 20;
+  canvas.height = window.innerWidth - 20;
+  document.body.style.flexDirection = "column";
+} else {
+  canvas.width = window.innerHeight - 20;
+  canvas.height = window.innerHeight - 20;
+  document.body.style.flexDirection = "row";
+}
 var ctx = canvas.getContext("2d");
 var radius = Math.min(canvas.width, canvas.height) / 3;
 var centerX = canvas.width / 2;
@@ -98,7 +105,13 @@ function drawShadows() {
   }
 }
 
+canvas.addEventListener("mousedown", function (event) {
+  hightlight(event);
+});
 canvas.addEventListener("mousemove", function (event) {
+  hightlight(event);
+});
+function hightlight(event) {
   var rect = canvas.getBoundingClientRect();
   var mouseX = event.clientX - rect.left;
   var mouseY = event.clientY - rect.top;
@@ -110,7 +123,7 @@ canvas.addEventListener("mousemove", function (event) {
 
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.arc(centerX, centerY, canvas.width, startAngle, endAngle);
     ctx.closePath();
 
     if (ctx.isPointInPath(mouseX, mouseY)) {
@@ -125,9 +138,9 @@ canvas.addEventListener("mousemove", function (event) {
   }
 
   drawShadows();
-});
+}
 
-canvas.addEventListener("click", function (event) {
+canvas.addEventListener("mouseup", function (event) {
   var rect = canvas.getBoundingClientRect();
   var mouseX = event.clientX - rect.left;
   var mouseY = event.clientY - rect.top;
@@ -138,7 +151,7 @@ canvas.addEventListener("click", function (event) {
 
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.arc(centerX, centerY, canvas.width, startAngle, endAngle);
     ctx.closePath();
 
     if (ctx.isPointInPath(mouseX, mouseY)) {
@@ -393,7 +406,13 @@ function rgbHueOf(rybHue) {
     }
   } catch (e) {}
 }
-
+function drawSections() {
+  for (var i = 0; i < numSections; i++) {
+    drawSection(i);
+  }
+  drawShadows();
+}
+drawSections();
 /*
  * Ag mid : 0 - 40
  * db invert :  0 - 50
