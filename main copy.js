@@ -57,6 +57,8 @@ function drawSection(index) {
 
   if (hoveredSection !== null && index === hoveredSection) {
     var expandedRadius = radius * 1.2;
+    startAngle = (index * 2 * Math.PI) / numSections;
+    endAngle = ((index + 1) * 2 * Math.PI) / numSections;
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
     ctx.arc(centerX, centerY, expandedRadius, startAngle, endAngle);
@@ -264,7 +266,7 @@ function harmonize() {
       ])
     );
   } else {
-    if (diff < 30 && diff > 20) {
+    if (diff < 28 && diff > 20) {
       tetradic.hidden = false;
       tecontainer.innerHTML = "";
       tecontainer.appendChild(
@@ -277,17 +279,16 @@ function harmonize() {
         colorDots([colorA, invertColor(colorB), invertColor(colorA), colorB])
       );
     }
-    if (diff <= 35) {
+    if (diff > 25 && diff < 40) {
+      triadic.hidden = false;
+      tcontainer.innerHTML = "";
+      tcontainer.appendChild(colorDots([colorA, invertColor(middle), colorB]));
+    }
+    if (diff <= 30) {
       analogous.hidden = false;
       acontainer.innerHTML = "";
       acontainer.appendChild(colorDots([loopColor(middle), colorA, colorB]));
-      if (diff >= 25) {
-        triadic.hidden = false;
-        tcontainer.innerHTML = "";
-        tcontainer.appendChild(
-          colorDots([colorA, invertColor(middle), colorB])
-        );
-      } else {
+      if (diff < 25) {
         if (diff < 15) {
           acontainer.appendChild(
             colorDots([loopColor(middle - 1.5 * different), colorA, colorB])
@@ -302,7 +303,7 @@ function harmonize() {
           colorDots([colorA, colorB, invertColor(middle)])
         );
       }
-    } else {
+    } else if (diff > 40) {
       splitComplementary.hidden = false;
       scontainer.innerHTML = "";
       scontainer.appendChild(
@@ -373,7 +374,7 @@ const colorButton = document.getElementById("toggleButton");
 function colorSwap() {
   useRGB = !useRGB;
   colorButton.innerHTML = useRGB
-    ? "Red Green Blue (Digital)"
+    ? "Red Green Blue (Screens)"
     : "Red Yellow Blue (Pigments)";
   harmonize();
   backgroundColor();
