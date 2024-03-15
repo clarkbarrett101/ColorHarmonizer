@@ -107,13 +107,14 @@ function drawShadows() {
   }
 }
 
-canvas.addEventListener("mousedown", function (event) {
+canvas.addEventListener("touchstart", function (event) {
   hightlight(event);
 });
 canvas.addEventListener("mousemove", function (event) {
   hightlight(event);
 });
 function hightlight(event) {
+  document.body.style.overflow = "hidden";
   var rect = canvas.getBoundingClientRect();
   var mouseX = event.clientX - rect.left;
   var mouseY = event.clientY - rect.top;
@@ -143,6 +144,7 @@ function hightlight(event) {
 }
 
 canvas.addEventListener("mouseup", function (event) {
+  document.body.style.overflow = "";
   var rect = canvas.getBoundingClientRect();
   var mouseX = event.clientX - rect.left;
   var mouseY = event.clientY - rect.top;
@@ -279,7 +281,7 @@ function harmonize() {
         colorDots([colorA, invertColor(colorB), invertColor(colorA), colorB])
       );
     }
-    if (diff > 25 && diff < 40) {
+    if (diff > 28 && diff < 40) {
       triadic.hidden = false;
       tcontainer.innerHTML = "";
       tcontainer.appendChild(colorDots([colorA, invertColor(middle), colorB]));
@@ -306,12 +308,21 @@ function harmonize() {
     } else if (diff > 40) {
       splitComplementary.hidden = false;
       scontainer.innerHTML = "";
-      scontainer.appendChild(
-        colorDots([colorA, loopColor(colorA + 2 * different), colorB])
-      );
-      scontainer.appendChild(
-        colorDots([colorA, colorB, loopColor(colorB - 2 * different)])
-      );
+      if (loopSide) {
+        scontainer.appendChild(
+          colorDots([colorA, loopColor(colorA - 2 * different), colorB])
+        );
+        scontainer.appendChild(
+          colorDots([colorA, colorB, loopColor(colorB + 2 * different)])
+        );
+      } else {
+        scontainer.appendChild(
+          colorDots([colorA, loopColor(colorA + 2 * different), colorB])
+        );
+        scontainer.appendChild(
+          colorDots([colorA, colorB, loopColor(colorB - 2 * different)])
+        );
+      }
     }
   }
 }
