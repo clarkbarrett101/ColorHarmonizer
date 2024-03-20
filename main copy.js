@@ -290,7 +290,7 @@ function harmonize() {
       analogous.hidden = false;
       acontainer.innerHTML = "";
       acontainer.appendChild(colorDots([loopColor(middle), colorA, colorB]));
-      if (diff < 25) {
+      if (diff <= 28) {
         if (diff < 15) {
           acontainer.appendChild(
             colorDots([loopColor(middle - 1.5 * different), colorA, colorB])
@@ -425,11 +425,3 @@ function drawSections() {
   drawShadows();
 }
 drawSections();
-/*
- * Ag mid : 0 - 40
- * db invert :  0 - 50
- * Ag right, left , sp invert : 0 - 25
- * tri : 25 - 40
- * sp left, right :  40 - 50
- * tet/comp db left, right == 50
- */
